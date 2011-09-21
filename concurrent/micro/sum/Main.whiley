@@ -25,7 +25,7 @@ void Sum::start():
 int Sum::get():
     return result
 
-Sum ::create([int] items, int start, int end):
+Sum System::create([int] items, int start, int end):
     return spawn { items: items, start: start, end: end, result: 0 }
 
 int System::run([int] items):
@@ -39,10 +39,10 @@ int System::run([int] items):
         workers = []
         for i in 0..nworkers:
             if i < (nworkers-1):    
-                worker = create(items,pos,pos+size)
+                worker = this.create(items,pos,pos+size)
             else:
                 // last actor has to pick up the slack
-                worker = create(items,pos,|items|)
+                worker = this.create(items,pos,|items|)
             workers = workers + [worker]
             worker!start()
             pos = pos + size

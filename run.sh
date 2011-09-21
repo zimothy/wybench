@@ -1,19 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
-NRUNS=10
-NRAMPUPS=5
+NRUNS=100
+NRAMPUPS=20
 
-#sequential_micro="gcd fib matrix queens regex sorter codejam_0511A codejam_0511B"
+concurrent="sum matrix"
 
-sequential_micro="gcd fib queens regex sorter codejam_0511A codejam_0511B"
-
-for benchmark in $sequential_micro
+for bench in $concurrent
 do
-    echo $benchmark
-    echo "================================================"
-    echo -n "Java:   "
-    java -server -cp ".:$WHILEY_HOME/lib/wyrt.jar:sequential/micro/$benchmark" Runner -r$NRAMPUPS -n$NRUNS JavaMain sequential/micro/$benchmark/small.in
-    echo -n "Whiley: "
-    java -server -cp ".:$WHILEY_HOME/lib/wyrt.jar:sequential/micro/$benchmark" Runner -r$NRAMPUPS -n$NRUNS Main sequential/micro/$benchmark/small.in
+  for i in `seq 10 200`
+  do
+    java -cp "$WHILEY_HOME/lib/wyrt.jar:concurrent/micro/$bench" Gen i > "concurrent/micro/$bench/gen.in"
+    echo "$bench: for $i"
+    echo "================================="
+    echo -n "Master: "
+    java -server -cp "dave-wybench:$HOME/Projects/dave-whiley/lib/wyrt.jar:dave-wybench/concurrent/micro/$bench" Runner -r$NRAMPUPS -n$NRUNS Main dave-wybench/concurrent/micro/$bench/gen.in
+    echo -n "Actors: "
+    java -server -cp "wybench:$WHILEY_HOME/lib/wyrt.jar:wybench/concurrent/micro/$bench" Runner -r$NRAMPUPS -n$NRUNS Main wybench/concurrent/micro/$bench/gen.in
     echo ""
+  done
 done
