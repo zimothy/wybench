@@ -9,7 +9,7 @@ for bench in $concurrent
 do
   for i in `seq 10 200`
   do
-    java -cp "$WHILEY_HOME/lib/wyrt.jar:concurrent/micro/$bench" Gen i > "concurrent/micro/$bench/gen.in"
+    java -cp "$WHILEY_HOME/lib/wyrt.jar:concurrent/micro/$bench" Gen i | tee "dave-wybench/concurrent/micro/$bench/gen.in" "wybench/concurrent/micro/$bench/gen.in"
     echo "$bench: for $i"
     echo "================================="
     echo -n "Master: "
