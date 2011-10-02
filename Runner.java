@@ -77,9 +77,14 @@ public class Runner {
 	
 	public static ArrayList<Long> runExperiment(int index, String[] args,
 			int nRampUpRuns, int nRuns) throws ClassNotFoundException,
-			NoSuchMethodException {
+			NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 		Class benchmark = Class.forName(args[index]);
 		Method m = benchmark.getDeclaredMethod("main", args.getClass());
+
+		Class actor = Class.forName("wyjc.runtime.Actor");
+		Method halt = actor.getDeclaredMethod("haltAll");
+		Object[] as = new Object[0];
+
 		// now build arguments
 		String[] barg = new String[args.length - (index + 1)];
 		for (int i = index + 1; i != args.length; ++i) {
@@ -88,15 +93,21 @@ public class Runner {
 		Object[] bargs = new Object[1];
 		bargs[0] = barg;
 		// ramp up runs
+		ArrayList<Long> data = new ArrayList<Long>();
 		for (int i = 0; i != nRampUpRuns; ++i) {
-			exec(m,bargs);				
+			try {
+				exec(m,bargs);
+			} catch (RuntimeException e) {
+				return data;
+			}
 			// force garbage collection.
+			halt.invoke(null, as);
 			System.gc();
 		}
-		ArrayList<Long> data = new ArrayList<Long>();
 		for (int i = 0; i != nRuns; ++i) {
 			data.add(exec(m,bargs));				
 			// force garbage collection.
+			halt.invoke(null, as);
 			System.gc();
 		}
 		return data;
@@ -104,12 +115,13 @@ public class Runner {
 	
 	public static long exec(final Method m, final Object[] bargs)  {									
 		long start = System.currentTimeMillis();
-		Thread currentThread = Thread.currentThread();		
-		try {	
-			m.invoke(null,bargs);						
-		} catch(IllegalAccessException e) {					
-		} catch(InvocationTargetException e) {										
-		} 
+		Thread currentThread = Thread.currentThread();
+		try {
+			m.invoke(null,bargs);
+		} catch(IllegalAccessException e) {
+		} catch(InvocationTargetException e) {
+			throw new RuntimeException("Failed to run.");
+		}
 		long total = System.currentTimeMillis() - start;
 		return total;
 	}
