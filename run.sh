@@ -1,21 +1,16 @@
 #!/bin/bash
 
-NRUNS=100
-NRAMPUPS=20
+NRUNS=1
+NRAMPUPS=0
 
-concurrent="sum matrix"
+bench="sum"
+i=1000
 
-for bench in $concurrent
+while [ $i -lt 100000 ]
 do
-  for i in `seq 10 200`
-  do
-    java -cp "wybench/concurrent/micro/$bench" Gen $i | tee "dave-wybench/concurrent/micro/$bench/gen.in" "wybench/concurrent/micro/$bench/gen.in" > /dev/null
-    echo "$bench: for $i"
-    echo "================================="
-    echo -n "Master: "
-    java -server -cp "dave-wybench:$HOME/Projects/dave-whiley/lib/wyrt.jar:dave-wybench/concurrent/micro/$bench" Runner -r$NRAMPUPS -n$NRUNS Main dave-wybench/concurrent/micro/$bench/gen.in
-    echo -n "Actors: "
-    java -server -cp "wybench:$WHILEY_HOME/lib/wyrt.jar:wybench/concurrent/micro/$bench" Runner -r$NRAMPUPS -n$NRUNS Main wybench/concurrent/micro/$bench/gen.in
-    echo ""
-  done
+  java -cp "concurrent/micro/$bench" Gen $i | tee "concurrent/micro/$bench/gen.in" > /dev/null
+  echo -n "$i "
+  java -server -cp ".:$HOME/Projects/dave-whiley/lib/wyrt.jar:concurrent/micro/$bench" Runner -r$NRAMPUPS -n$NRUNS Main concurrent/micro/$bench/gen.in
+  echo ""
+  let i=i+1000
 done

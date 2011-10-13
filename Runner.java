@@ -115,6 +115,7 @@ public class Runner {
 	
 	public static long exec(final Method m, final Object[] bargs)  {									
 		long start = System.currentTimeMillis();
+
 		Thread currentThread = Thread.currentThread();
 		try {
 			m.invoke(null,bargs);
@@ -122,6 +123,7 @@ public class Runner {
 		} catch(InvocationTargetException e) {
 			throw new RuntimeException("Failed to run.");
 		}
+
 		long total = System.currentTimeMillis() - start;
 		return total;
 	}
